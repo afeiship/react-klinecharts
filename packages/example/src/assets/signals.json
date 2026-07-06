@@ -1,0 +1,29 @@
+{
+  "signals": [
+    {
+      "type": "buy",
+      "timestamp": 1768435200000,
+      "price": 4096.85
+    },
+    {
+      "type": "sell",
+      "timestamp": 1770681600000,
+      "price": 4134.34
+    },
+    {
+      "type": "buy",
+      "timestamp": 1772668800000,
+      "price": 4090.62
+    },
+    {
+      "type": "sell",
+      "timestamp": 1776643200000,
+      "price": 4083.19
+    },
+    {
+      "type": "buy",
+      "timestamp": 1779667200000,
+      "price": 4119.80
+    }
+  ]
+}

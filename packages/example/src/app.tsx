@@ -1,35 +1,86 @@
-import { SimpleChart, type KLineData, type Signal } from '@jswork/react-klinecharts/src/main';
+import { SimpleChart, ReactKlineChart, Indicator } from '@jswork/react-klinecharts/src/main';
+import { useStockData } from './hooks/use-stock-data';
 import '@jswork/react-klinecharts/src/style.scss';
 
-// 模拟K线数据
-const mockData: KLineData[] = [
-  { timestamp: 1625097600000, open: 100, high: 105, low: 98, close: 103, volume: 1000000 },
-  { timestamp: 1625184000000, open: 103, high: 108, low: 102, close: 107, volume: 1200000 },
-  { timestamp: 1625270400000, open: 107, high: 110, low: 105, close: 108, volume: 1100000 },
-];
-
-// 模拟买卖信号
-const mockSignals: Signal[] = [
-  { type: 'buy', timestamp: 1625097600000, price: 100, text: '买入' },
-  { type: 'sell', timestamp: 1625184000000, price: 107, text: '卖出' },
-];
-
 function App() {
+  const { data, signals, loading, error } = useStockData();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-xl text-gray-600">加载中...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-xl text-red-600">错误: {error}</div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return null;
+  }
+
   return (
-    <div className="m-10 p-4 shadow bg-gray-100 text-gray-800 hover:shadow-md transition-all">
+    <div className="container mx-auto p-5 bg-gray-50 min-h-screen">
       <div className="badge badge-warning absolute right-0 top-0 m-4">
         Build Time: {BUILD_TIME}
       </div>
-      <h1 className="text-2xl font-bold mb-4">ReactKlineChart 示例</h1>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">SimpleChart 预设组件</h2>
+      <h1 className="text-3xl font-bold mb-5 text-gray-800">
+        ReactKlineChart 示例
+      </h1>
+
+      {/* SimpleChart 预设组件 */}
+      <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          SimpleChart 预设组件（主图 + 成交量 + MACD）
+        </h2>
         <SimpleChart
-          data={mockData}
-          signals={mockSignals}
+          data={data}
+          signals={signals}
           theme="dark"
-          height={500}
+          height={600}
         />
+      </div>
+
+      {/* 自定义组合示例 */}
+      <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          自定义组合（主图 + VOL + KDJ + RSI）
+        </h2>
+        <ReactKlineChart
+          data={data}
+          signals={signals}
+          theme="dark"
+          height={600}
+          maParams={{ periods: [5, 10, 20, 60], colors: ['#ffffff', '#ff6600', '#00ff00', '#ff00ff'] }}
+        >
+          <Indicator type="VOL" />
+          <Indicator type="KDJ" params={{ n: 9, m1: 3, m2: 3 }} />
+          <Indicator type="RSI" params={{ period: 14 }} />
+        </ReactKlineChart>
+      </div>
+
+      {/* 统计信息 */}
+      <div className="mt-4 text-sm text-gray-600 bg-white rounded-lg shadow p-4">
+        <h3 className="font-semibold text-lg mb-2 text-gray-800">数据统计</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p><span className="font-semibold">数据来源:</span> 东方财富API（上证指数）</p>
+            <p><span className="font-semibold">数据量:</span> {data.length} 条K线</p>
+            <p><span className="font-semibold">时间范围:</span> {new Date(data[0].timestamp).toLocaleDateString()} - {new Date(data[data.length - 1].timestamp).toLocaleDateString()}</p>
+          </div>
+          <div>
+            <p><span className="font-semibold">信号数量:</span> {signals.length} 个信号点</p>
+            <p><span className="font-semibold">买入信号:</span> {signals.filter(s => s.type === 'buy').length} 个</p>
+            <p><span className="font-semibold">卖出信号:</span> {signals.filter(s => s.type === 'sell').length} 个</p>
+          </div>
+        </div>
       </div>
     </div>
   );
