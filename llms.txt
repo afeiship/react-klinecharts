@@ -1,0 +1,450 @@
+# ReactKlineChart - LLM Documentation
+
+This file provides comprehensive documentation for ReactKlineChart, a React component library for K-line/candlestick charts built on klinecharts v10.
+
+## Overview
+
+ReactKlineChart is a pure display component that wraps klinecharts with a declarative API. It provides:
+- Composable components for indicator configuration
+- Built-in technical indicators (VOL, MACD, KDJ, RSI, CCI)
+- Theme system with presets and customization
+- Buy/sell signal markers
+- Preset components for quick setup
+
+## Installation
+
+```bash
+npm install @jswork/react-klinecharts klinecharts@10.0.0-beta3
+# or
+yarn add @jswork/react-klinecharts klinecharts@10.0.0-beta3
+```
+
+## Quick Start
+
+### Basic Usage - Preset Components
+
+```tsx
+import { SimpleChart } from '@jswork/react-klinecharts';
+import type { KLineData, Signal } from '@jswork/react-klinecharts';
+
+const data: KLineData[] = [
+  { timestamp: 1625097600000, open: 100, high: 105, low: 98, close: 103, volume: 1000000 },
+];
+
+const signals: Signal[] = [
+  { type: 'buy', timestamp: 1625097600000, price: 100 },
+];
+
+function App() {
+  return <SimpleChart data={data} signals={signals} theme="dark" />;
+}
+```
+
+### Custom Composition
+
+```tsx
+import { ReactKlineChart, Indicator } from '@jswork/react-klinecharts';
+
+function App() {
+  return (
+    <ReactKlineChart
+      data={data}
+      signals={signals}
+      theme="dark"
+      maParams={{ periods: [5, 10, 20], colors: ['#fff', '#ff6600', '#00ff00'] }}
+    >
+      <Indicator type="VOL" />
+      <Indicator type="MACD" params={{ fast: 12, slow: 26, signal: 9 }} />
+      <Indicator type="KDJ" params={{ n: 9, m1: 3, m2: 3 }} />
+    </ReactKlineChart>
+  );
+}
+```
+
+## Components
+
+### ReactKlineChart
+
+Main component providing composable API through children `<Indicator>` components.
+
+**Props:**
+- `data: KLineData[]` - K-line data (required)
+- `signals?: Signal[]` - Buy/sell signal markers
+- `theme?: ThemeProp` - Theme configuration (preset name or custom)
+- `maParams?: MAParams` - MA moving average configuration
+- `height?: number | string` - Chart height (default: 600)
+- `className?: string` - Custom className
+- `style?: React.CSSProperties` - Custom styles
+- `children?: React.ReactNode` - Indicator components
+
+**Example:**
+```tsx
+<ReactKlineChart
+  data={klineData}
+  signals={signals}
+  theme={{
+    preset: 'dark',
+    colors: { upColor: '#custom', downColor: '#custom' }
+  }}
+  maParams={{ periods: [5, 20, 60], colors: ['#fff', '#ff6600', '#00ff00'] }}
+  height={800}
+>
+  <Indicator type="VOL" />
+  <Indicator type="MACD" />
+</ReactKlineChart>
+```
+
+### Indicator
+
+Declarative component for configuring sub-chart indicators. Returns `null` (no rendering).
+
+**Props:**
+- `type: string` - Indicator type name (built-in or custom registered)
+- `params?: IndicatorParams` - Indicator parameters (optional)
+- `visible?: boolean` - Show/hide indicator (default: true)
+
+**Important:** Indicator children order determines sub-chart display order. First child = top sub-chart.
+
+**Example:**
+```tsx
+<Indicator type="VOL" />
+<Indicator type="MACD" params={{ fast: 12, slow: 26, signal: 9 }} />
+<Indicator type="KDJ" visible={false} />
+```
+
+### MainChart
+
+Preset component: Main chart only (candlestick + MA lines), no sub-chart indicators.
+
+**Props:**
+- `data: KLineData[]` - K-line data (required)
+- `signals?: Signal[]` - Buy/sell signal markers
+- `theme?: ThemeProp` - Theme configuration
+- `maParams?: MAParams` - MA parameters (default: { periods: [5, 20] })
+- `height?: number | string` - Chart height (default: 400)
+- `className?: string` - Custom className
+
+**Example:**
+```tsx
+<MainChart data={data} theme="light" height={400} />
+```
+
+### SimpleChart
+
+Preset component: Main chart + VOL (volume) + MACD indicators.
+
+**Props:**
+- Same as MainChart (default height: 600)
+
+**Example:**
+```tsx
+<SimpleChart data={data} signals={signals} theme="dark" />
+```
+
+## Theme System
+
+### Preset Themes
+
+Four built-in themes:
+- `dark` - Dark background (#1f2937), red up/green down, no grid
+- `light` - White background (#ffffff), red up/green down, grid shown
+- `red-green` - Dark background, red up (#ef4444)/green down (#22c55e)
+- `green-red` - Dark background, green up (#22c55e)/red down (#ef4444) - inverted colors
+
+### Custom Theme
+
+Two ways to customize:
+
+**1. Theme name (preset):**
+```tsx
+<ReactKlineChart theme="dark" />
+```
+
+**2. Preset + custom colors:**
+```tsx
+<ReactKlineChart theme={{
+  preset: 'dark',
+  colors: {
+    upColor: '#ff0000',
+    downColor: '#00ff00',
+    backgroundColor: '#000',
+  }
+}} />
+```
+
+### ThemeConfig Interface
+
+```typescript
+interface ThemeConfig {
+  upColor: string;        // Price up color
+  downColor: string;      // Price down color
+  noChangeColor: string;  // No change color
+  backgroundColor: string; // Background color
+  grid?: {
+    show: boolean;
+    color?: string;
+  };
+  textColor?: string;
+}
+```
+
+## Built-in Indicators
+
+### VOL (Volume)
+
+Volume indicator, no configurable parameters.
+
+```tsx
+<Indicator type="VOL" />
+```
+
+### MACD
+
+MACD indicator with configurable fast/slow/signal periods.
+
+**Default params:** `{ fast: 12, slow: 26, signal: 9 }`
+
+**Configurable params:**
+- `fast: number` (1-100) - Fast EMA period
+- `slow: number` (1-100) - Slow EMA period
+- `signal: number` (1-100) - Signal line period
+
+```tsx
+<Indicator type="MACD" params={{ fast: 12, slow: 26, signal: 9 }} />
+```
+
+### KDJ
+
+KDJ stochastic indicator.
+
+**Default params:** `{ n: 9, m1: 3, m2: 3 }`
+
+**Configurable params:**
+- `n: number` (1-100) - N period
+- `m1: number` (1-100) - M1 period
+- `m2: number` (1-100) - M2 period
+
+```tsx
+<Indicator type="KDJ" params={{ n: 9, m1: 3, m2: 3 }} />
+```
+
+### RSI
+
+Relative Strength Index.
+
+**Default params:** `{ period: 14 }`
+
+**Configurable params:**
+- `period: number` (1-100) - RSI period
+
+```tsx
+<Indicator type="RSI" params={{ period: 14 }} />
+```
+
+### CCI
+
+Commodity Channel Index.
+
+**Default params:** `{ period: 14 }`
+
+**Configurable params:**
+- `period: number` (1-100) - CCI period
+
+```tsx
+<Indicator type="CCI" params={{ period: 14 }} />
+```
+
+## Custom Indicators
+
+Register custom indicators using `registerIndicator`:
+
+```tsx
+import { registerIndicator } from '@jswork/react-klinecharts';
+
+registerIndicator({
+  name: 'BOLL',             // Unique identifier
+  displayName: '布林带',    // Display name
+  defaultParams: { period: 20, stdDev: 2 },
+  paramsSchema: [
+    { key: 'period', label: '周期', type: 'number', defaultValue: 20, min: 1, max: 100 },
+    { key: 'stdDev', label: '标准差', type: 'number', defaultValue: 2, min: 1, max: 10 },
+  ],
+  create: (params) => ({
+    name: 'BOLL',
+    calcParams: [params.period as number, params.stdDev as number],
+  }),
+});
+
+// Use registered indicator
+<Indicator type="BOLL" params={{ period: 20 }} />
+```
+
+## Type Definitions
+
+### KLineData
+
+```typescript
+interface KLineData {
+  timestamp: number;  // Unix timestamp in milliseconds
+  open: number;       // Opening price
+  close: number;      // Closing price
+  high: number;       // Highest price
+  low: number;        // Lowest price
+  volume: number;     // Volume
+  turnover?: number;  // Turnover (optional)
+}
+```
+
+### Signal
+
+```typescript
+interface Signal {
+  type: 'buy' | 'sell';  // Signal type
+  timestamp: number;     // Unix timestamp in milliseconds
+  price: number;         // Signal price
+  text?: string;         // Custom text (default: "买"/"卖")
+}
+```
+
+### MAParams
+
+```typescript
+interface MAParams {
+  periods: number[];  // MA periods array, e.g., [5, 20, 60]
+  colors?: string[];  // MA line colors (optional)
+}
+```
+
+## API Reference
+
+### Exports
+
+```typescript
+// Components
+export { ReactKlineChart } from './components/react-kline-chart';
+export { Indicator } from './components/indicator';
+export { MainChart } from './components/presets/main-chart';
+export { SimpleChart } from './components/presets/simple-chart';
+
+// Registration
+export { registerIndicator, indicatorRegistry } from './core/indicator-registry';
+
+// Types
+export type {
+  KLineData,
+  Signal,
+  IndicatorParams,
+  IndicatorConfig,
+  IndicatorDefinition,
+  IndicatorParamSchema,
+  MAParams,
+  ThemeConfig,
+  PresetTheme,
+  ThemeProp,
+  ReactKlineChartProps,
+  IndicatorProps,
+} from './types';
+```
+
+## Common Patterns
+
+### Dynamic Indicator Visibility
+
+```tsx
+const [showMACD, setShowMACD] = useState(true);
+
+<ReactKlineChart data={data}>
+  <Indicator type="VOL" />
+  <Indicator type="MACD" visible={showMACD} />
+</ReactKlineChart>
+```
+
+### Custom MA Configuration
+
+```tsx
+<ReactKlineChart
+  data={data}
+  maParams={{
+    periods: [5, 10, 20, 60],
+    colors: ['#ffffff', '#ff6600', '#00ff00', '#ff00ff']
+  }}
+/>
+```
+
+### Buy/Sell Signals
+
+```tsx
+const signals = [
+  { type: 'buy', timestamp: 1625097600000, price: 100, text: '买入点' },
+  { type: 'sell', timestamp: 1625184000000, price: 107, text: '卖出点' },
+];
+
+<SimpleChart data={data} signals={signals} />
+```
+
+### Multiple Charts
+
+```tsx
+function App() {
+  return (
+    <>
+      <MainChart data={stockData} height={300} />
+      <SimpleChart data={indexData} signals={signals} height={400} />
+    </>
+  );
+}
+```
+
+## Important Notes
+
+1. **klinecharts dependency:** Requires klinecharts v10.0.0-beta3 as peer dependency
+2. **Indicator order matters:** Children order in `<ReactKlineChart>` determines sub-chart display order
+3. **Pure display component:** All data must be passed via props, no internal data fetching
+4. **Chart cleanup:** Component automatically calls `dispose()` on unmount
+5. **Theme defaults:** Uses `dark` theme by default if not specified
+6. **TypeScript support:** Full type definitions included in package
+
+## Architecture
+
+ReactKlineChart follows these design principles:
+
+- **Composable API:** Declarative configuration through React children
+- **Registry Pattern:** Centralized indicator management with extensibility
+- **Theme Layer:** Preset themes with customization overlay
+- **Manager Pattern:** ChartManager encapsulates klinecharts lifecycle
+- **Pure Components:** No side effects, all configuration via props
+
+## File Structure
+
+```
+packages/lib/src/
+├── types/index.ts              - TypeScript definitions
+├── core/
+│   ├── indicator-registry.ts   - Indicator registration center
+│   ├── theme-manager.ts        - Theme resolution logic
+│   └── chart-manager.ts        - klinecharts wrapper
+├── indicators/
+│   ├── vol.ts, macd.ts, kdj.ts, rsi.ts, cci.ts
+│   └── index.ts                - Auto-registration
+├── components/
+│   ├── react-kline-chart.tsx   - Main component
+│   ├── indicator.tsx           - Declarative config component
+│   └ presets/
+│   ├── main-chart.tsx          - Main chart preset
+│   └── simple-chart.tsx        - Main+VOL+MACD preset
+└── index.tsx                   - Public API exports
+```
+
+## Examples
+
+See `packages/example/src/app.tsx` for working examples using real stock data (上证指数) from 东方财富 API.
+
+## Links
+
+- GitHub: https://github.com/afeiship/react-klinecharts
+- klinecharts: https://klinecharts.com
+- npm: https://www.npmjs.com/package/@jswork/react-klinecharts
+
+---
+
+For questions or issues, please open a GitHub issue or check the example app for implementation patterns.
