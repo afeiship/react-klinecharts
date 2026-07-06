@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 4. 如果有计划执行，使用 `子代理驱动（推荐）` 来执行
 5. 组件目录们于这里: `./packages/lib`
 6. 组件的 example 目录在这里: `./packages/example`
-7. 组件开发完成之后，帮我写一份专门给 AI 使用的 llms.txt，放到根目录下
+7. 组件开发完成之后，帮我写一份专门给 AI 使用的 `llms.txt`，放到根目录下
 8. 文件命名统一使用 abc-xx 的 kebab-case 方式
 
 ## Project Overview
