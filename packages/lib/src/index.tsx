@@ -1,32 +1,28 @@
-// import noop from '@jswork/noop';
-import cx from 'classnames';
-import { ReactNode, Component, HTMLAttributes } from "react";
+// packages/lib/src/index.tsx
 
-const CLASS_NAME = "react-klinecharts";
-// const uuid = () => Math.random().toString(36).substring(2, 9);
-export type ReactKlinechartsProps = {
-  /**
-   * The extended className for component.
-   * @default ''
-   */
-  className?: string;
-  /**
-   * The children element.
-   */
-  children?: ReactNode;
-} & HTMLAttributes<HTMLDivElement>;
+// 导出主组件
+export { ReactKlineChart } from './components/react-kline-chart';
+export { Indicator } from './components/indicator';
 
-export default class ReactKlinecharts extends Component<ReactKlinechartsProps> {
-  static displayName = CLASS_NAME;
-  static version = "__VERSION__";
-  static defaultProps = {};
+// 导出预设组件
+export { MainChart } from './components/presets/main-chart';
+export { SimpleChart } from './components/presets/simple-chart';
 
-  render() {
-    const { className, children,...rest } = this.props;
-    return (
-      <div data-component={CLASS_NAME} className={cx(CLASS_NAME, className)} {...rest}>
-        {children}
-      </div>
-    );
-  }
-}
+// 导出注册方法
+export { registerIndicator, indicatorRegistry } from './core/indicator-registry';
+
+// 导出类型定义
+export type {
+  KLineData,
+  Signal,
+  IndicatorParams,
+  IndicatorConfig,
+  IndicatorDefinition,
+  IndicatorParamSchema,
+  MAParams,
+  ThemeConfig,
+  PresetTheme,
+  ThemeProp,
+  ReactKlineChartProps,
+  IndicatorProps,
+} from './types';

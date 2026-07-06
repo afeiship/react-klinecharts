@@ -8,8 +8,9 @@ import type { IndicatorProps } from '../types';
  * 注意：此组件不渲染任何内容，只是作为配置声明传递给父组件
  * 父组件 ReactKlineChart 会提取其 props 并处理
  */
-export function Indicator({ type, params, visible = true }: IndicatorProps) {
+export function Indicator(_props: IndicatorProps) {
   // 不渲染任何内容，返回 null
+  // props 由父组件 ReactKlineChart 提取并处理
   return null;
 }
 
