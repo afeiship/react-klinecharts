@@ -1,29 +1,36 @@
 /**
  * 基础渲染测试
- * 验证 ReactKlinecharts 组件的基本渲染行为，包括：
+ * 验证 ReactKlineChart 组件的基本渲染行为，包括：
  * - 默认 className 是否正确应用
  * - 自定义 className 是否能正确合并
- * - children 内容是否正常渲染
+ * - 组件是否能正确渲染容器
  */
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import ReactKlinecharts from '../src';
+import { ReactKlineChart } from '../src';
 
-describe('ReactKlinecharts', () => {
+describe('ReactKlineChart', () => {
+  const mockData = [
+    { timestamp: 1000, open: 100, high: 110, low: 90, close: 105, volume: 1000 },
+    { timestamp: 2000, open: 105, high: 115, low: 95, close: 110, volume: 1200 },
+  ];
+
   it('should render with default className', () => {
-    render(<ReactKlinecharts>hello</ReactKlinecharts>);
-    const el = screen.getByText('hello');
-    expect(el).toBeInTheDocument();
-    expect(el.closest('[data-component="react-klinecharts"]')).toBeInTheDocument();
+    const { container } = render(<ReactKlineChart data={mockData} />);
+    const chartElement = container.querySelector('[data-component="react-kline-chart"]');
+    expect(chartElement).toBeInTheDocument();
+    expect(chartElement).toHaveClass('react-kline-chart');
   });
 
   it('should merge custom className', () => {
-    const { container } = render(<ReactKlinecharts className="custom-class">test</ReactKlinecharts>);
-    expect(container.firstChild).toHaveClass('react-klinecharts', 'custom-class');
+    const { container } = render(<ReactKlineChart data={mockData} className="custom-class" />);
+    const chartElement = container.querySelector('[data-component="react-kline-chart"]');
+    expect(chartElement).toHaveClass('react-kline-chart', 'custom-class');
   });
 
-  it('should render children', () => {
-    render(<ReactKlinecharts>child content</ReactKlinecharts>);
-    expect(screen.getByText('child content')).toBeInTheDocument();
+  it('should apply custom height', () => {
+    const { container } = render(<ReactKlineChart data={mockData} height={800} />);
+    const chartElement = container.querySelector('[data-component="react-kline-chart"]');
+    expect(chartElement).toHaveStyle({ height: '800px' });
   });
 });

@@ -101,7 +101,7 @@ export function ReactKlineChart({
     <div
       ref={containerRef}
       data-component="react-kline-chart"
-      className={className}
+      className={`react-kline-chart${className ? ` ${className}` : ''}`}
       style={{
         height,
         backgroundColor: resolvedTheme.backgroundColor,
